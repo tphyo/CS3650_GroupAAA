@@ -29,7 +29,7 @@ when "100101" =>
  Ctrl <= "001";
 when "101010" => 
  Ctrl <= "111";
-end case;
+end case;;
 when others =>
 Ctrl <= "000";
 end case;

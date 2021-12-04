@@ -31,7 +31,7 @@ when "101010" =>
  Ctrl <= "111";
 end case;
 when others =>
-Ctrl <= "000"
+Ctrl <= "000";
 end case;
 end process;
 end Behavioral;

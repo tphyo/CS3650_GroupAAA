@@ -4,7 +4,7 @@ entity ALU_Ctrl is
 port(
   Ctrl: out std_logic_vector(2 downto 0);
   Op : in std_logic_vector(1 downto 0);
-  Funct : in std_logic_vector(5 downto 0)
+  Funct : in std_logic_vector(2 downto 0)
 );
 end ALU_Ctrl;
 

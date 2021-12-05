@@ -12,17 +12,24 @@ architecture Behavioral of ALU_Ctrl is
 begin
 process(Op,Funct)
 begin
-case Op is
-when "00" => Ctrl <= "010";
-when "01" => Ctrl <= "110";
-end case;
-case Funct is 
-when "100000" => Ctrl <= "010";
-when "100010" => Ctrl <= "110";
-when "100100" => Ctrl <= "000";
-when "100101" => Ctrl <= "001";
-when "101010" => Ctrl <= "111";
-when others => Ctrl <= "000";
-end case;
+if Op = "00" => 
+  Ctrl <= "010";
+elsif Op = "01" => 
+  Ctrl <= "110";
+else
+  if Funct = "100000" => 
+    Ctrl <= "010";
+elsif Funct = "100010" => 
+  Ctrl <= "110";
+elsif Funct = "100100" => 
+  Ctrl <= "000";
+elsif Funct = "100101" => 
+  Ctrl <= "001";
+elsif Funct = "101010" => 
+  Ctrl <= "111";
+else
+  Ctrl <= "000";
+end if;
+  end if;
 end process;
 end Behavioral;

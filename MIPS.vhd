@@ -11,9 +11,9 @@ port (
 end MIPS_VHDL;
 
 architecture Behavioral of MIPS_VHDL is
- signal pc_current: std_logic_vector(31 downto 0);
+ signal pc_current: std_logic_vector(4 downto 0);
  signal pc_next,pc2: std_logic_vector(31 downto 0);
- signal instr: std_logic_vector(15 downto 0);
+ signal instr: std_logic_vector(7 downto 0);
  signal mem_to_reg,alu_op: std_logic_vector(1 downto 0);
  signal jump,branch,mem_read,mem_write,alu_src,reg_write, reg_dst: std_logic;
  signal reg_write_dest: std_logic_vector(2 downto 0);
@@ -47,7 +47,7 @@ end process;
 -- PC + 2 
   pc2 <= pc_current + x"0002";
 -- instruction memory of the MIPS Processor in VHDL
-Instruction_Memory: entity work.Instruction_Memory 
+Instruction_Memory: entity work.memory 
         port map
        (
         Addr=> pc_current,
@@ -55,11 +55,13 @@ Instruction_Memory: entity work.Instruction_Memory
         );
 -- jump shift left 1
  jump_shift_1 <= instr(13 downto 0) & '0';
+ 
+ 
 -- control unit of the MIPS Processor in VHDL
-control: entity work.Controller
+control: entity work.ControlUnit
    port map
    (--reset => reset,
-    OpCode => instr(15 downto 13),
+    OpCode => instr(31 downto 26),
     RegDst => reg_dst,
     --mem_to_reg => mem_to_reg,
     ALUOp => alu_op,
@@ -72,12 +74,19 @@ control: entity work.Controller
     --sign_or_zero => sign_or_zero
     );
 -- multiplexer regdest
-  reg_write_dest <= "111" when  reg_dst= "10" else
-        instr(6 downto 4) when  reg_dst= "01" else
-        instr(9 downto 7);
+ -- reg_write_dest <= "111" when  reg_dst= "10" else
+ --       instr(6 downto 4) when  reg_dst= "01" else
+ --       instr(9 downto 7);
 -- register file instantiation of the MIPS Processor in VHDL
- reg_read_addr_1 <= instr(12 downto 10);
- reg_read_addr_2 <= instr(9 downto 7);
+ --reg_read_addr_1 <= instr(12 downto 10);
+-- reg_read_addr_2 <= instr(9 downto 7);
+
+ 
+ --USE MUX ENTITY THING HERE WITH INST 20 - 16 , INST 15 - 11, REGDST
+ 
+ 
+ 
+ 
 register_file: entity work.RegisterFile
  port map
  (
@@ -91,6 +100,8 @@ register_file: entity work.RegisterFile
  readReg2 => reg_read_addr_2,
  readData2 => reg_read_data_2
  );
+ 
+ 
 -- sign extend
  tmp1 <= (others => instr(6));
  sign_ext_im <=  tmp1 & instr(6 downto 0); 
@@ -98,15 +109,25 @@ register_file: entity work.RegisterFile
  imm_ext <= sign_ext_im when sign_or_zero='1' else zero_ext_im;
 -- JR control unit of the MIPS Processor in VHDL
  JRControl <= '1' when ((alu_op="00") and (instr(3 downto 0)="1000")) else '0';
+  
 -- ALU control unit of the MIPS Processor in VHDL
 ALUControl: entity work.ALU_ctrl port map
   (
    Op => alu_op,
-   Funct => instr(2 downto 0),
+   Funct => instr(5 downto 0),
    Ctrl => ALU_Control
    );
+ 
+ 
+ 
+ 
 -- multiplexer alu_src
- read_data2 <= imm_ext when alu_src='1' else reg_read_data_2;
+-- read_data2 <= imm_ext when alu_src='1' else reg_read_data_2;
+ 
+ 
+  --USE MUX ENTITY THING HERE WITH read data 2 , sign extended , alusrc
+ 
+ 
 -- ALU unit of the MIPS Processor in VHDL
 alu: entity work.ALU port map
   (
@@ -116,6 +137,8 @@ alu: entity work.ALU port map
    alu_result => ALU_out,
    zero => zero_flag
    );
+ 
+ --THIS STIFF I THINK IS MOSTLY THE TOP PART OF THE IMAGE
 -- immediate shift 1
  im_shift_1 <= imm_ext(14 downto 0) & '0';
  no_sign_ext <= (not im_shift_1) + x"0001";
@@ -133,6 +156,7 @@ alu: entity work.ALU port map
  PC_jr <= reg_read_data_1;
 -- PC_next
  pc_next <= PC_jr when (JRControl='1') else PC_4beqj;
+  
 -- data memory of the MIPS Processor in VHDL
 data_memory: entity work.Data_RAM port map
   (
@@ -143,6 +167,7 @@ data_memory: entity work.Data_RAM port map
   mem_read => mem_read,
   mem_read_data => mem_read_data
   );
+ 
 -- write back of the MIPS Processor in VHDL
  reg_write_data <= pc2 when (mem_to_reg = "10") else
        mem_read_data when (mem_to_reg = "01") else ALU_out;

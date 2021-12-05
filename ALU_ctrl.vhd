@@ -15,14 +15,13 @@ begin
 case Op is
 when "00" => Ctrl <= "010";
 when "01" => Ctrl <= "110";
-when "10" =>
+end case;
 case Funct is 
 when "100000" => Ctrl <= "010";
 when "100010" => Ctrl <= "110";
 when "100100" => Ctrl <= "000";
 when "100101" => Ctrl <= "001";
 when "101010" => Ctrl <= "111";
-end case;
 when others => Ctrl <= "000";
 end case;
 end process;

@@ -15,12 +15,15 @@ begin
 process(clk, reset)
 
 variable PC, IR : std_logic_vector(31 downto 0) := "00000000000000000000000000000000";
+--deal with itype first 
 
+--if R type, load it into instruction
 begin
 instruction: ENTITY work.instruction_memory(Behavioral)
 port map(
 );
 
+--Controller will control the data path
 control: ENTITY work.Controller(Behavioral)
 port map(
 );
